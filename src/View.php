@@ -4,7 +4,7 @@ namespace Minii;
 
 class View {
     
-    private $viewPath, $engine;
+    private $viewPath, $includePath, $engine;
     
     public function __construct ($config) {
         
@@ -28,7 +28,8 @@ class View {
         
         if(isset($config['includes'])) {
             
-            $config['includes'] = $this->normalizePath($config['includes']);
+            $this->includePath = $this->normalizePath($config['includes']);
+            $config['includes'] = $this->includePath;
             
         } else {
             
@@ -38,6 +39,21 @@ class View {
         $config['globals'] = isset($config['globals']) ? $config['globals'] : null;
         
         return $config;
+    }
+    
+    public function load ($view, $data = null) {
+        
+        $ds = DIRECTORY_SEPARATOR;
+        $viewPath = $this->includePath. $ds. trim($view). '.html';
+        
+        if(file_exists($viewPath)) {
+            
+            return $this->engine->compiler($viewPath, $data);
+            
+        } else {
+            
+            throw new \Exception("The file \"$view\" in \"$viewPath\" could not be found.");
+        }
     }
     
     public function render ($view, $data = null) {
@@ -51,7 +67,7 @@ class View {
             
         } else {
             
-            throw new \Exception("The file \"$view\" could not be found.");
+            throw new \Exception("The file \"$view\" in \"$viewPath\" could not be found.");
         }
     }
     

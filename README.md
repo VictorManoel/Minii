@@ -32,23 +32,32 @@ First you need create the config.
     $minii = new Minii\View($config);
     
     // $...->render( View , [ Variables ] );
-    $minii->render('home',['name'=>'Minii']);
+    echo $minii->render('home',['name'=>'Minii']);
 
 ## Render
 
+**The Minii use HTML files:**
+
+### Load Includes
+
+You may load includes out of the view.
+
+>app/views/components/header.html
+
+    // $...->load( Include , [ Variables ] );
+    $header = $minii->load('header',['name'=>'Minii']);
+
 ### Delimiters
 
-- {( $... )} : Use to print a variable.
+- {{ $... }} : Use to print a variable.
 - {% ... %} : Use to include a component.
-
-**The Minii use HTML files:**
 
 >app/views/home.html
 
     {% header %}
     
-    <a href="{( $root )}">
-        <h1>{( $name )}</h1>
+    <a href="{{ $root }}">
+        <h1>{{ $name }}</h1>
     </a>
     
     {% footer %}
@@ -60,7 +69,35 @@ First you need create the config.
     // header include
     
     <header>
-        <a href="{( $root )}">
-            <span>{( $name )}</span>
+        <a href="{{ $root }}">
+            <span>{{ $name }}</span>
         </a>
     <header>
+
+### Control Structures
+
+**If Statements**
+
+You may construct if statements using the *@if*, *@elif*, *@else*, and *@endif* directives.
+
+    @if( $num == 1 )
+    
+        $num is equal to 1
+    
+    @elif( $num > 1)
+    
+        $num is greater than 1
+    
+    @else
+    
+        $num is less than 1
+    
+    @endif
+
+**Loops**
+
+    @for ($i = 0; $i < 10; $i++)
+    
+        The current value is {{ $i }}
+    
+    @endfor

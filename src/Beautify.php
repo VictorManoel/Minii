@@ -30,7 +30,7 @@ class Beautify {
             if ($element['opening']) {
                 
                 $output[] = "\n" . str_repeat($indentWith, $indent) . trim($element['content']);
-                if (!in_array($element['type'], ['html','link','img','meta'])) ++$indent;
+                if (!in_array($element['type'], ['html','link','img','meta','input'])) ++$indent;
                 
             } else if ($element['standalone']) {
                 
@@ -55,7 +55,7 @@ class Beautify {
         
         return $output;
     }
-     
+    
     private function parseDom(Array $elements) {
         
         $dom = [];
@@ -76,7 +76,7 @@ class Beautify {
                 
                 $isClosing = true;
                 
-            } else if (preg_match('/\/>$/', $currentElement)) {
+            } else if ($this->standaloneTags($currentElement)) {
                 
                 $isStandalone = true;
                 
@@ -103,10 +103,26 @@ class Beautify {
         return $dom;
     }
     
+    private function standaloneTags($currentElement) {
+        
+        $StandaloneTags = '/^<(input|link|area|base|br|col|command|embed|';
+        $StandaloneTags .= 'hr|img|keygen|meta|param|source|track|wbr) /';
+        
+        $openTag = preg_match($StandaloneTags, $currentElement);
+        $endTag = preg_match('/\/$/', $currentElement);
+        
+        return ($openTag || $endTag) ? true : false;
+    }
+    
     private function replacement($html) {
         
-        $patterns = ['/<title>\s*(.+)\s*<\/title>/', '/<(i|a|p|span)(.*)>\s*(.{0,10})\s*<\/(.{1,4})>/', '/<\/body>\s*<\/html>/'];
-        $replace = ['<title>\1</title>', '<\1\2>\3</\1>', "</body>\n</html>"];
+        $patterns = [
+            '/<title>\s*(.+)\s*<\/title>/',
+            '/<(i|a|p|span) (.*)>\s*(.{0,10})\s*<\/(.{1,4})>/', 
+            '/<\/body>\s*<\/html>/'
+        ];
+        
+        $replace = ['<title>\1</title>', '<\1 \2>\3</\1>', "</body>\n</html>"];
         
         return preg_replace($patterns, $replace, $html);
     }
